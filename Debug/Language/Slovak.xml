@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Ditto_Language_File Version = "3.24.238" Author = "Vladimír Kubala" Notes = "" LanguageCode = "slo">
+<Ditto_Language_File Version = "3.25.113" Author = "Vladimír Kubala" Notes = "" LanguageCode = "slo">
 	<Ditto_Right_Click_Menu>
 		<Item English_Text = "Groups" ID = "-1">Skupiny</Item>
 		<Item English_Text = "New Group	Ctrl-F7" ID = "32811">Nová skupina</Item>
@@ -132,7 +132,7 @@
 		<Item English_Text = "Show Startup Message" ID = "32959">Zobraziť úvodnú správu</Item>
 		<Item English_Text = "Filter On Selected Clip" ID = "32910">Filtrovať označený výstrižok</Item>		
 		<Item English_Text = "Invert Case" ID = "32958">Vymeniť veľkosť písma</Item>
-		<Item English_Text = "Trim White Space" ID = "32946">Orezať prázdne znaky</Item>
+		<Item English_Text = "Trim White Space" ID = "32946">Odstrániť prázdne znaky</Item>
 		<Item English_Text = "Slugify" ID = " 32954">Slugify</Item>		
 		<Item English_Text = "Paste, Don't Change Clip Order" ID = " 32945">Vložiť, nemeniť poradie výstrižku</Item>		
 		<Item English_Text = "Gmail, Content In Body" ID = "32952">Gmail, Obsah v tele</Item>
@@ -451,6 +451,7 @@
 		
 		<Item English_Text = "Backup Database" ID = "32960">Zálohovať databázu</Item>
 		<Item English_Text = "Restore Database" ID = "32961">Obnoviť databázu</Item>
+		
 		<Item English_Text = "Delete All Non Used Clips" ID = "32969">Odstrániť všetky nepoužité výstrižky</Item>
 	</Ditto_Tray_Icon_Menu>
 
@@ -522,6 +523,7 @@
 		<Item English_Text = "Last Used" ID = "LastUsed">Použité</Item>
 		<Item English_Text = "Format" ID = "Format">Formát</Item>
 		<Item English_Text = "Data Size" ID = "DataSize">Veľkosť dát</Item>
+		<Item English_Text = "Rýchlo vložiť text" ID = "QuickPasteText"></Item>
 	</Ditto_DeleteClipData>
 	
 	<Ditto_Options_Quick_Paste_Keyboard>
@@ -570,7 +572,7 @@
 		<Item English_Text = "MODIFIER_ACTVE_MOVELAST" ID = "18">MODIFIER_ACTVE_MOVELAST</Item>
 		<Item English_Text = "Cancel Filter" ID = "19">Zrušiť filtrovanie</Item>
 		<Item English_Text = "HOMELIST" ID = "20">HOMELIST</Item>
-		<Item English_Text = "Back Group" ID = "21"></Item>
+		<Item English_Text = "Back Group" ID = "21">Vrátiť skupinu</Item>
 		<Item English_Text = "Toggle Show Persistant" ID = "22">Prepnúť Zobraziť natrvalo</Item>
 		<Item English_Text = "Paste Selected" ID = "23">Vložiť označené</Item>
 		<Item English_Text = "Delete Selected" ID = "24">Odstrániť označené</Item>
@@ -635,6 +637,43 @@
 		<Item English_Text = "Global HotKeys" ID = "83">Všeobecné klávesové skratky</Item>
 		<Item English_Text = "Delete Clip Data" ID = "84">Odstrániť údaje výstrižku</Item>
 		<Item English_Text = "Paste CamelCase" ID = "122">Ťavia notácia (CamelCase)</Item>
+		<Item English_Text = "Save copied file (cf_hdrop) contents into Ditto" ID = "87">Uložiť obsah skopírovaného súboru (cf_hdrop) do Ditto</Item>
+		<Item English_Text = "Toggle clipboard connection" ID = "88">Prepnúť pripojenie schránky</Item>
+		<Item English_Text = "Move Selection Up" ID = "89">Presunúť výber hore</Item>
+		<Item English_Text = "Move Selection Down" ID = "90">Presunúť výber dole</Item>
+		<Item English_Text = "Toggle Description Word Wrap" ID = "91">Prepnúť zalomenie textu popisu</Item>
+		<Item English_Text = "Apply Last Search" ID = "92">Použiť posledné vyhľadávanie</Item>
+		<Item English_Text = "Toggle Search Method" ID = "93">Prepnúť metódu vyhľadávania</Item>
+		<Item English_Text = "Move Clip Last" ID = "95">Presunúť výstrižok na koniec</Item>
+		<Item English_Text = "Paste, Don't Change Clip Order" ID = "96">Vložiť, nezmeniť poradie výstrižku</Item>
+		<Item English_Text = "Paste, Trim White Space" ID = "97">Vložiť, odstrániť prázdne znaky</Item>
+		<Item English_Text = "Set Transparency None" ID = "98">"Nastaviť priehľadnosť na žiadna</Item>
+		<Item English_Text = "Set Transparency 5%" ID = "99">Nastaviť priehľadnosť 5%</Item>
+		<Item English_Text = "Set Transparency 10%" ID = "100">Nastaviť priehľadnosť 40%</Item>
+		<Item English_Text = "Set Transparency 15%" ID = "101">Nastaviť priehľadnosť 35%</Item>
+		<Item English_Text = "Set Transparency 20%" ID = "102">Nastaviť priehľadnosť 30%</Item>
+		<Item English_Text = "Set Transparency 25%" ID = "103">Nastaviť priehľadnosť 25%</Item>
+		<Item English_Text = "Set Transparency 30%" ID = "104">Nastaviť priehľadnosť 20%</Item>
+		<Item English_Text = "Set Transparency 35%" ID = "105">Nastaviť priehľadnosť 15%</Item>
+		<Item English_Text = "Set Transparency 40%" ID = "106">Nastaviť priehľadnosť 10%</Item>
+		<Item English_Text = "Prompt send to friend" ID = "107">Poslať priateľovi</Item>
+		<Item English_Text = "Increase Transparency %" ID = "108">Zvýšiť priehľadnosť %</Item>
+		<Item English_Text = "Decrease Transparency %" ID = "109">Znížiť priehľadnosť %</Item>
+		<Item English_Text = "EMail, Content In Body" ID = "110">E-mail, obsah do tela</Item>
+		<Item English_Text = "EMail, Clip Export As Attachment" ID = "111">E-mail, výstrižok exportovať ako prílohu</Item>
+		<Item English_Text = "EMail, Content As Attachment" ID = "112">E-mail, obsah ako prílohu</Item>
+		<Item English_Text = "Gmail" ID = "113">Gmail</Item>
+		<Item English_Text = "Slugify" ID = "114">Slugify</Item>
+		<Item English_Text = "Invert Case" ID = "115">Invert veľkosť písma</Item>
+		<Item English_Text = "Copy Selection" ID = "116"></Item>
+		<Item English_Text = "Force Close Window" ID = "117">Kopírovať výber</Item>
+		<Item English_Text = "Refresh List" ID = "118"></Item>
+		<Item English_Text = "Delete all non used clips" ID = "119">Obnoviť zoznam</Item>
+		<Item English_Text = "Show System Context Menu" ID = "120">Zobraziť kontextovú ponuku systému</Item>
+		<Item English_Text = "Set Drag File Name" ID = "121">Nastaviť názov súboru na presunutie</Item>
+		<Item English_Text = "Paste CamelCase" ID = "122">Vložiť ťaviu notáciu</Item>
+		<Item English_Text = "Paste Multiple Images Horizontally" ID = "123">Vložiť viacero obrázkov horizontálne</Item>
+		<Item English_Text = "Paste Multiple Images Vertically" ID = "124">Vložiť viacero obrázkov vertikálne</Item>
 	</Ditto_Options_Quick_Paste_Keyboard>
 	
 </Ditto_Language_File>
