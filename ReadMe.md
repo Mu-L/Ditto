@@ -21,6 +21,10 @@ Ditto is an extension to the standard windows clipboard. It saves each item plac
 3. Open Ditto by clicking its icon in the system tray or by pressing its Hot Key which defaults to Ctrl + ` – i.e. hold down Ctrl and press the back-quote (tilde ~) key.
 4. Double click or press enter on the item to paste it to the previous window.
 
+## Local-First
+- No login
+- No cloud
+- No telemetry
 
 ## Windows Code-Signing Policy
 Free code signing on Windows binaries provided by SignPath.io, certificate by SignPath Foundation.
