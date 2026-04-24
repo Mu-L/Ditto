@@ -374,6 +374,8 @@ BEGIN_MESSAGE_MAP(CQPasteWnd, CWndEx)
 		ON_UPDATE_COMMAND_UI(ID_IMPORT_EXPORTTOWEBSEARCH, &CQPasteWnd::OnUpdateImportExporttowebsearch)
 		ON_COMMAND(ID_SPECIALPASTE_PASTENEWGUID, &CQPasteWnd::OnSpecialpastePastenewguid)
 		ON_UPDATE_COMMAND_UI(ID_SPECIALPASTE_PASTENEWGUID, &CQPasteWnd::OnUpdateSpecialpastePastenewguid)
+		ON_COMMAND(ID_SPECIALPASTE_PASTEASIMAGE, &CQPasteWnd::OnSpecialpastePasteAsImage)
+		ON_UPDATE_COMMAND_UI(ID_SPECIALPASTE_PASTEASIMAGE, &CQPasteWnd::OnUpdateSpecialpastePasteAsImage)
 		END_MESSAGE_MAP()
 
 
@@ -3482,6 +3484,9 @@ bool CQPasteWnd::DoAction(CAccel a)
 	case ActionEnums::GENERATE_GUID:
 		ret = DoActionGenerateGuid();
 		break;
+	case ActionEnums::PASTE_AS_IMAGE:
+		ret = DoPasteAsImage();
+		break;
 	}
 
 	return ret;
@@ -4562,6 +4567,19 @@ bool CQPasteWnd::DoActionGenerateGuid()
 	{
 		CSpecialPasteOptions pasteOptions;
 		pasteOptions.m_pasteGuid = true;
+		OpenSelection(pasteOptions);
+		return true;
+	}
+
+	return false;
+}
+
+bool CQPasteWnd::DoPasteAsImage()
+{
+	if (::GetFocus() == m_lstHeader.GetSafeHwnd())
+	{
+		CSpecialPasteOptions pasteOptions;
+		pasteOptions.m_pasteAsImage = true;
 		OpenSelection(pasteOptions);
 		return true;
 	}
@@ -8375,4 +8393,19 @@ void CQPasteWnd::OnUpdateSpecialpastePastenewguid(CCmdUI* pCmdUI)
 	}
 
 	UpdateMenuShortCut(pCmdUI, ActionEnums::GENERATE_GUID);
+}
+
+void CQPasteWnd::OnSpecialpastePasteAsImage()
+{
+	DoAction(ActionEnums::PASTE_AS_IMAGE);
+}
+
+void CQPasteWnd::OnUpdateSpecialpastePasteAsImage(CCmdUI* pCmdUI)
+{
+	if (!pCmdUI->m_pMenu)
+	{
+		return;
+	}
+
+	UpdateMenuShortCut(pCmdUI, ActionEnums::PASTE_AS_IMAGE);
 }

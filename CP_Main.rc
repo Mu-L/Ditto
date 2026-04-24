@@ -507,6 +507,8 @@ BEGIN
             MENUITEM "Typoglycemia",                ID_SPECIALPASTE_TYPOGLYCEMIA
             MENUITEM "Slugify",                     ID_SPECIALPASTE_SLUGIFY
             MENUITEM "Paste new Guid",              ID_SPECIALPASTE_PASTENEWGUID
+            MENUITEM SEPARATOR
+            MENUITEM "Paste as Image",              ID_SPECIALPASTE_PASTEASIMAGE
         END
         POPUP "Compare"
         BEGIN
