@@ -173,6 +173,7 @@ public:
 	CPopup m_popupMsg;
 	CCustomFriendsHelper m_customFriendsHelper;
 	bool m_noSearchResults;
+	bool m_bShowStarredClips;
 	CAccel m_timerAction;
 	__int64 m_lastDbWrite;
 	bool m_pendingRefresh;
@@ -200,6 +201,7 @@ public:
     void SetTransparency(int percent);
     void OnUpdateLinesPerRow(CCmdUI *pCmdUI, int nValue);
     void OnUpdateTransparency(CCmdUI *pCmdUI, int nValue);
+	void AddShowStarredClipsMenuItem(CMenu *pMenu);
     void SetMenuChecks(CMenu *pMenu);
     void SetSendToMenu(CMenu *pMenu, int nMenuID, int nArrayPos);
 	void SetFriendChecks(CMenu *pMenu);
@@ -477,6 +479,7 @@ protected:
 	afx_msg void OnMenuSearchDescription();
 	afx_msg void OnMenuSearchFullText();
 	afx_msg void OnMenuSearchQuickPaste();
+	afx_msg void OnMenuShowStarredClips();
 	afx_msg void OnMenuSimpleTextSearch();
 	afx_msg LRESULT OnPostOptions(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnMakeTopStickyClip();

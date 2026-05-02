@@ -83,6 +83,7 @@ CQPasteWnd::CQPasteWnd()
 	m_leftSelectedCompareId = 0;
 	m_extraDataCounter = 0;
 	m_noSearchResults = false;
+	m_bShowStarredClips = false;
 	m_lastDbWrite = 0;
 	m_pendingRefresh = false;
 	m_lastNonActiveMouseMove = 0;
@@ -230,6 +231,7 @@ BEGIN_MESSAGE_MAP(CQPasteWnd, CWndEx)
 	ON_COMMAND(ID_MENU_SEARCHDESCRIPTION, OnMenuSearchDescription)
 	ON_COMMAND(ID_MENU_SEARCHFULLTEXT, OnMenuSearchFullText)
 	ON_COMMAND(ID_MENU_SEARCHQUICKPASTE, OnMenuSearchQuickPaste)
+	ON_COMMAND(ID_MENU_SHOWSTARREDCLIPS, OnMenuShowStarredClips)
 	ON_COMMAND(ID_MENU_CONTAINSTEXTSEARCHONLY, OnMenuSimpleTextSearch)
 	//ON_WM_CTLCOLOR()
 	//ON_WM_ERASEBKGND()
@@ -668,7 +670,7 @@ void CQPasteWnd::MoveControls()
 	//Hide the two pixels of space at the top, not sure where this is coming from
 	int topOfListBox = 0;
 
-	if (theApp.m_GroupID > 0)
+	if (theApp.m_GroupID > 0 && m_bShowStarredClips == false)
 	{
 		m_stGroup.ShowWindow(SW_SHOW);
 		m_BackButton.ShowWindow(SW_SHOW);
@@ -719,7 +721,7 @@ void CQPasteWnd::MoveControls()
 	}
 
 	if (m_noSearchResults &&
-		m_strSearch != _T(""))
+		(m_strSearch != _T("") || m_bShowStarredClips))
 	{
 		m_lstHeader.ShowWindow(SW_HIDE);
 		m_noSearchResultsStatic.ShowWindow(SW_SHOW);
@@ -920,6 +922,7 @@ BOOL CQPasteWnd::HideQPasteWindow(bool releaseFocus, BOOL clearSearchData)
 		m_bHandleSearchTextChange = false;
 		m_search.SetWindowText(_T(""));
 		m_bHandleSearchTextChange = true;
+		m_bShowStarredClips = false;
 
 		if (m_strSQLSearch.IsEmpty() == FALSE || m_pendingRefresh)
 		{
@@ -1397,6 +1400,12 @@ void CQPasteWnd::UpdateStatus(bool bRepaintImmediately)
 		title += theApp.m_Language.GetString("disconnected", "[Disconnected]");
 	}
 
+	if (m_bShowStarredClips)
+	{
+		title += _T(" ");
+		title += theApp.m_Language.GetString("starred_clips", "[Starred clips]");
+	}
+
 	CString cs;
 	cs.Format(_T(" - %d/%d"), m_lstHeader.GetSelectedCount(), m_lstHeader.GetItemCount());
 	title += cs;
@@ -1435,6 +1444,11 @@ void CQPasteWnd::UpdateStatus(bool bRepaintImmediately)
 		windowTitle += StrF(_T(" %s"), theApp.m_Language.GetString("disconnected", "[Disconnected]"));
 	}
 
+	if (m_bShowStarredClips)
+	{
+		windowTitle += StrF(_T(" %s"), theApp.m_Language.GetString("starred_clips", "[Starred clips]"));
+	}
+
 	SetCustomWindowTitle(windowTitle);
 }
 
@@ -1455,10 +1469,19 @@ BOOL CQPasteWnd::FillList(CString csSQLSearch)
 
 	CString strFilter;
 	CString strParentFilter;
+	CString strStarredFilter = _T("Main.bIsGroup = 0 AND Main.lDontAutoDelete > 0");
 	CString csSort;
 
 	// History Groupiter->m_stickyClipGroupOrder = clip.m_stickyClipGroupOrder;
-	if (theApp.m_GroupID < 0)
+	if (m_bShowStarredClips)
+	{
+		csSort = "Main.stickyClipOrder DESC, "
+			"Main.bIsGroup ASC, "
+			"Main.clipOrder DESC";
+
+		strFilter = strStarredFilter;
+	}
+	else if (theApp.m_GroupID < 0)
 	{
 		//do not change this this directly relates to the views in the Main table
 		csSort = "Main.stickyClipOrder DESC, "
@@ -1512,7 +1535,7 @@ BOOL CQPasteWnd::FillList(CString csSQLSearch)
 
 	if (csSQLSearch == "")
 	{
-		m_strSQLSearch = "";
+		m_strSQLSearch = m_bShowStarredClips ? strFilter : _T("");
 		m_strSearch = "";
 	}
 	else
@@ -1616,6 +1639,13 @@ BOOL CQPasteWnd::FillList(CString csSQLSearch)
 			strFilter += strParentFilter;
 		}
 
+		if (m_bShowStarredClips)
+		{
+			strFilter += " AND (";
+			strFilter += strStarredFilter;
+			strFilter += ")";
+		}
+
 		m_strSQLSearch = strFilter;
 		m_strSearch = csSQLSearch;
 	}
@@ -1695,9 +1725,45 @@ void CQPasteWnd::ShowRightClickMenu()
 			CGetSetOptions::m_pasteScripts.AddToMenu(sendToMenu, &m_actions);
 		}
 
+		AddShowStarredClipsMenuItem(cmSubMenu);
+
 		theApp.m_Language.UpdateRightClickMenu(cmSubMenu);
 
+		if (m_bShowStarredClips)
+		{
+			cmSubMenu->CheckMenuItem(ID_MENU_SHOWSTARREDCLIPS, MF_CHECKED);
+		}
+
 		cmSubMenu->TrackPopupMenu(TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON, pp.x, pp.y, this, NULL);
+	}
+}
+
+void CQPasteWnd::AddShowStarredClipsMenuItem(CMenu* pMenu)
+{
+	if (pMenu == NULL ||
+		pMenu->GetMenuState(ID_MENU_SHOWSTARREDCLIPS, MF_BYCOMMAND) != 0xFFFFFFFF)
+	{
+		return;
+	}
+
+	CString csText = theApp.m_Language.GetString(_T("ShowStarredClips"), _T("Show Starred Clips"));
+	CString csFilterOn(_T("Filter On Selected Clip"));
+	int nPos = -1;
+	CMenu* pParentMenu = CMultiLanguage::GetMenuPos(pMenu, csFilterOn, nPos);
+	if (pParentMenu != NULL &&
+		nPos >= 0)
+	{
+		pParentMenu->InsertMenu(nPos + 1, MF_BYPOSITION | MF_STRING, ID_MENU_SHOWSTARREDCLIPS, csText);
+		return;
+	}
+
+	CString csSearchQuickPaste(_T("Search Quick Paste"));
+	nPos = -1;
+	pParentMenu = CMultiLanguage::GetMenuPos(pMenu, csSearchQuickPaste, nPos);
+	if (pParentMenu != NULL &&
+		nPos >= 0)
+	{
+		pParentMenu->InsertMenu(nPos + 1, MF_BYPOSITION | MF_STRING, ID_MENU_SHOWSTARREDCLIPS, csText);
 	}
 }
 
@@ -1957,6 +2023,9 @@ void CQPasteWnd::SetMenuChecks(CMenu* pMenu)
 
 	if (CGetSetOptions::GetSearchQuickPaste())
 		pMenu->CheckMenuItem(ID_MENU_SEARCHQUICKPASTE, MF_CHECKED);
+
+	if (m_bShowStarredClips)
+		pMenu->CheckMenuItem(ID_MENU_SHOWSTARREDCLIPS, MF_CHECKED);
 
 	if (CGetSetOptions::GetSimpleTextSearch())
 		pMenu->CheckMenuItem(ID_MENU_CONTAINSTEXTSEARCHONLY, MF_CHECKED);
@@ -3965,6 +4034,8 @@ bool CQPasteWnd::DoModifierActiveActionMoveLast()
 
 bool CQPasteWnd::DoActionCancelFilter()
 {
+	m_bShowStarredClips = false;
+
 	FillList();
 
 	m_bHandleSearchTextChange = false;
@@ -6129,6 +6200,16 @@ void CQPasteWnd::OnMenuSearchQuickPaste()
 	}
 }
 
+void CQPasteWnd::OnMenuShowStarredClips()
+{
+	m_bShowStarredClips = !m_bShowStarredClips;
+
+	CString csText;
+	m_search.GetWindowText(csText);
+
+	FillList(csText);
+}
+
 void CQPasteWnd::OnSearchEditChange()
 {
 	m_search.Invalidate();
@@ -6301,11 +6382,19 @@ LRESULT CQPasteWnd::OnSetListCount(WPARAM wParam, LPARAM lParam)
 	m_lstHeader.SetItemCountEx((int)wParam);
 
 	if ((int)wParam == 0 &&
-		m_strSearch != _T(""))
+		(m_strSearch != _T("") || m_bShowStarredClips))
 	{
 		m_noSearchResults = true;
-		CString text = theApp.m_Language.GetString("NoSearchResults", "There are no results for");
-		m_noSearchResultsStatic.SetWindowText(StrF(_T("%s \"%s\""), text, m_strSearch));
+		if (m_bShowStarredClips && m_strSearch == _T(""))
+		{
+			CString text = theApp.m_Language.GetString("NoStarredClips", "There are no starred clips");
+			m_noSearchResultsStatic.SetWindowText(text);
+		}
+		else
+		{
+			CString text = theApp.m_Language.GetString("NoSearchResults", "There are no results for");
+			m_noSearchResultsStatic.SetWindowText(StrF(_T("%s \"%s\""), text, m_strSearch));
+		}
 	}
 
 	SelectFocusID();
@@ -7008,6 +7097,8 @@ void CQPasteWnd::OnSystemButton()
 		{
 			cmSubMenu->CheckMenuItem(ID_FIRST_SHOWSTARTUPMESSAGE, MF_CHECKED);
 		}
+
+		AddShowStarredClipsMenuItem(cmSubMenu);
 
 		theApp.m_Language.UpdateRightClickMenu(cmSubMenu);
 
