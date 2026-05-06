@@ -515,6 +515,8 @@ public:
 	afx_msg void OnUpdateCliporderMovetotop(CCmdUI *pCmdUI);
 	afx_msg void OnMenuFilteron();
 	afx_msg void OnUpdateMenuFilteron(CCmdUI *pCmdUI);
+	afx_msg void OnMenuGoToEntry();
+	afx_msg void OnUpdateMenuGoToEntry(CCmdUI *pCmdUI);
 	afx_msg void OnAlwaysOnTopClicked();
 	//afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg void OnSpecialpasteUppercase();

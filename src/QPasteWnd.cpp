@@ -266,6 +266,8 @@ BEGIN_MESSAGE_MAP(CQPasteWnd, CWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CLIPORDER_MOVETOTOP, &CQPasteWnd::OnUpdateCliporderMovetotop)
 	ON_COMMAND(ID_MENU_FILTERON, &CQPasteWnd::OnMenuFilteron)
 	ON_UPDATE_COMMAND_UI(ID_MENU_FILTERON, &CQPasteWnd::OnUpdateMenuFilteron)
+	ON_COMMAND(ID_MENU_GOTOENTRY, &CQPasteWnd::OnMenuGoToEntry)
+	ON_UPDATE_COMMAND_UI(ID_MENU_GOTOENTRY, &CQPasteWnd::OnUpdateMenuGoToEntry)
 	ON_BN_CLICKED(ON_TOP_WARNING, OnAlwaysOnTopClicked)
 	//ON_WM_CTLCOLOR()
 	ON_COMMAND(ID_SPECIALPASTE_UPPERCASE, &CQPasteWnd::OnSpecialpasteUppercase)
@@ -7020,6 +7022,141 @@ void CQPasteWnd::OnUpdateMenuFilteron(CCmdUI* pCmdUI)
 	}
 
 	UpdateMenuShortCut(pCmdUI, ActionEnums::FILTER_ON_SELECTED_CLIP);
+}
+
+void CQPasteWnd::OnMenuGoToEntry()
+{
+	ARRAY IDs;
+	m_lstHeader.GetSelectionItemData(IDs);
+	if (IDs.GetSize() <= 0)
+	{
+		return;
+	}
+
+	long targetID = IDs[0];
+
+	int targetSticky = 0;
+	int targetIsGroup = 0;
+	int targetClipOrder = 0;
+	long targetParent = -1;
+	bool gotKey = false;
+	try
+	{
+		CppSQLite3Query q = theApp.m_db.execQueryEx(
+			_T("SELECT stickyClipOrder, bIsGroup, clipOrder, lParentID FROM Main WHERE lID = %d"),
+			targetID);
+		if (!q.eof())
+		{
+			targetSticky = q.getIntField(_T("stickyClipOrder"));
+			targetIsGroup = q.getIntField(_T("bIsGroup"));
+			targetClipOrder = q.getIntField(_T("clipOrder"));
+			targetParent = q.getIntField(_T("lParentID"));
+			gotKey = true;
+		}
+	}
+	catch (CppSQLite3Exception&)
+	{
+	}
+
+	if (!gotKey)
+	{
+		return;
+	}
+
+	CString filter;
+	if (CGetSetOptions::m_bShowAllClipsInMainList)
+	{
+		if (CGetSetOptions::GetShowGroupsInMainList())
+			filter = _T("((Main.bIsGroup = 1 AND Main.lParentID = -1) OR Main.bIsGroup = 0)");
+		else
+			filter = _T("(Main.bIsGroup = 0)");
+	}
+	else
+	{
+		filter = _T("((Main.bIsGroup = 1 AND Main.lParentID = -1) OR (Main.bIsGroup = 0 AND Main.lParentID = -1))");
+	}
+
+	int targetIndex = -1;
+	try
+	{
+		CString rankSql;
+		rankSql.Format(
+			_T("SELECT COUNT(*) FROM Main WHERE %s AND (")
+			_T("(stickyClipOrder > %d) OR ")
+			_T("(stickyClipOrder = %d AND bIsGroup < %d) OR ")
+			_T("(stickyClipOrder = %d AND bIsGroup = %d AND clipOrder > %d))"),
+			(LPCTSTR)filter,
+			targetSticky,
+			targetSticky, targetIsGroup,
+			targetSticky, targetIsGroup, targetClipOrder);
+
+		targetIndex = theApp.m_db.execScalar(rankSql);
+	}
+	catch (CppSQLite3Exception&)
+	{
+		targetIndex = -1;
+	}
+
+	theApp.m_FocusID = targetID;
+
+	if (theApp.m_GroupID >= 0 && targetParent != theApp.m_GroupID)
+	{
+		theApp.EnterGroupID(-1);
+	}
+
+	m_bHandleSearchTextChange = false;
+	m_search.SetWindowText(_T(""));
+	m_bHandleSearchTextChange = true;
+
+	FillList(_T(""));
+
+	// The list loader thread reports completion via PostMessage(NM_SET_LIST_COUNT),
+	// so we must pump messages while waiting or that handler never runs.
+	DWORD waitStart = GetTickCount();
+	while (WaitForSingleObject(m_thread.m_SearchingEvent, 0) == WAIT_TIMEOUT)
+	{
+		MSG msg;
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		if (GetTickCount() - waitStart > 5000)
+			break;
+		Sleep(10);
+	}
+
+	MSG msg;
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+
+	int totalRows = m_lstHeader.GetItemCount();
+
+	if (targetIndex < 0 || targetIndex >= totalRows)
+	{
+		MoveControls();
+		SelectFocusID();
+		m_lstHeader.SetFocus();
+		return;
+	}
+
+	MoveControls();
+
+	m_lstHeader.EnsureVisible(targetIndex, FALSE);
+	m_lstHeader.SetListPos(targetIndex);
+	m_lstHeader.SetFocus();
+
+	Log(StrF(_T("GoToEntry: scrolled to index %d of %d"), targetIndex, totalRows));
+}
+
+void CQPasteWnd::OnUpdateMenuGoToEntry(CCmdUI* pCmdUI)
+{
+	CString csSearch;
+	m_search.GetWindowText(csSearch);
+	pCmdUI->Enable(!csSearch.IsEmpty());
 }
 
 void CQPasteWnd::OnAlwaysOnTopClicked()
